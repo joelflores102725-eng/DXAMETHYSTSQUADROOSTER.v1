@@ -1,1 +1,1322 @@
-# DXAMETHYSTSQUADROOSTER.v1
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DX AMETHYST SQUAD ROSTER PRO - Esports Game Client</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        obsidian: '#0a0a0c',
+                        obsidianCard: '#121217',
+                        obsidianBorder: '#272732',
+                        crimson: {
+                            DEFAULT: '#e60023',
+                            hover: '#ff1e38',
+                            dark: '#b3001b',
+                            glow: 'rgba(230, 0, 35, 0.4)'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.js"></script>
+    <style>
+        body {
+            background-color: #0a0a0c;
+            color: #f3f4f6;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .glow-crimson {
+            box-shadow: 0 0 25px rgba(230, 0, 35, 0.35);
+        }
+        .glow-crimson-subtle {
+            box-shadow: 0 0 15px rgba(230, 0, 35, 0.15);
+        }
+        .glass-panel {
+            background: rgba(18, 18, 23, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a0c;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #272732;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #e60023;
+        }
+    </style>
+</head>
+<body x-data="dxAmethystApp()" x-init="initApp()" class="min-h-screen flex flex-col antialiased selection:bg-crimson selection:text-white">
+
+    <!-- Authentication View -->
+    <template x-if="!isAuthenticated">
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-obsidian bg-opacity-95 px-4 overflow-y-auto">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(230,0,35,0.08)_0,transparent_70%)] pointer-events-none"></div>
+            
+            <div class="w-full max-w-md glass-panel p-8 rounded-2xl glow-crimson relative z-10 border border-obsidianBorder my-8">
+                <div class="text-center mb-8">
+                    <div class="inline-block px-3 py-1 mb-3 text-xs font-mono font-bold tracking-widest text-crimson bg-crimson/10 rounded-full border border-crimson/30">
+                        SECURE TIER-1 CLIENT
+                    </div>
+                    <h1 class="text-3xl font-black tracking-wider uppercase text-white font-mono">DX AMETHYST</h1>
+                    <p class="text-xs text-slate-400 mt-1 uppercase tracking-widest font-mono">Squad Roster Pro v5.2</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 mb-6 bg-obsidian p-1 rounded-xl border border-obsidianBorder">
+                    <button @click="authTab = 'login'; clearAuthError()" 
+                        :class="authTab === 'login' ? 'bg-crimson text-white font-semibold glow-crimson-subtle' : 'text-slate-400 hover:text-white'"
+                        class="py-2.5 text-xs uppercase tracking-wider rounded-lg transition-all duration-200">
+                        Login
+                    </button>
+                    <button @click="authTab = 'signup'; clearAuthError()" 
+                        :class="authTab === 'signup' ? 'bg-crimson text-white font-semibold glow-crimson-subtle' : 'text-slate-400 hover:text-white'"
+                        class="py-2.5 text-xs uppercase tracking-wider rounded-lg transition-all duration-200">
+                        Sign Up
+                    </button>
+                </div>
+
+                <template x-if="authError">
+                    <div class="mb-4 p-3 bg-red-950/80 border border-red-600/50 rounded-xl text-xs text-red-200 flex items-center space-x-2">
+                        <i class="fa-solid fa-triangle-exclamation text-crimson text-sm"></i>
+                        <span x-text="authError"></span>
+                    </div>
+                </template>
+
+                <!-- Login Form -->
+                <form x-show="authTab === 'login'" @submit.prevent="handleLogin" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-mono text-slate-400 uppercase mb-1.5">Email Address</label>
+                        <input type="email" x-model="loginForm.email" required 
+                            class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-crimson transition-colors"
+                            placeholder="e.g. operative@domain.com">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono text-slate-400 uppercase mb-1.5">Password</label>
+                        <input type="password" x-model="loginForm.password" required 
+                            class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-crimson transition-colors"
+                            placeholder="••••••••••••">
+                    </div>
+                    <button type="submit" class="w-full py-3.5 bg-crimson hover:bg-crimson-hover text-white text-sm font-bold uppercase tracking-wider rounded-xl transition-all glow-crimson flex items-center justify-center space-x-2 mt-2">
+                        <span>Initialize Session</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                    <div class="mt-4 pt-4 border-t border-obsidianBorder text-center">
+                        <button type="button" @click="fillAdminDemo" class="text-[10px] font-mono text-slate-500 hover:text-crimson transition-colors">
+                            [ System Override Access ]
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Sign Up Form (Automatically Syncs with Profiling) -->
+                <form x-show="authTab === 'signup'" @submit.prevent="handleSignup" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-mono text-slate-400 uppercase mb-1.5">Email Address</label>
+                        <input type="email" x-model="signupForm.email" required 
+                            class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-crimson transition-colors"
+                            placeholder="player@domain.com">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-mono text-slate-400 uppercase mb-1.5">In-Game Name (IGN)</label>
+                            <input type="text" x-model="signupForm.ign" required 
+                                class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-crimson"
+                                placeholder="DX • Phantom">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-mono text-slate-400 uppercase mb-1.5">Player ID</label>
+                            <input type="text" x-model="signupForm.playerId" required 
+                                class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-crimson font-mono"
+                                placeholder="DX-8921">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-mono text-slate-400 uppercase mb-1.5">Organization</label>
+                            <select x-model="signupForm.squadOrg" class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-crimson">
+                                <template x-for="org in organizations" :key="org">
+                                    <option :value="org" x-text="org"></option>
+                                </template>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-mono text-slate-400 uppercase mb-1.5">Team Number</label>
+                            <select x-model.number="signupForm.teamNumber" class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-crimson">
+                                <template x-for="num in [1, 2, 3, 4]" :key="num">
+                                    <option :value="num" x-text="'Team ' + num"></option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono text-slate-400 uppercase mb-1.5">Preferred Role (Strict)</label>
+                        <select x-model="signupForm.role" class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-crimson">
+                            <template x-for="role in rolesList" :key="role">
+                                <option :value="role" x-text="role"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono text-slate-400 uppercase mb-1.5">Password</label>
+                        <input type="password" x-model="signupForm.password" required 
+                            class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-crimson transition-colors"
+                            placeholder="At least 6 characters">
+                    </div>
+                    <button type="submit" class="w-full py-3.5 bg-crimson hover:bg-crimson-hover text-white text-sm font-bold uppercase tracking-wider rounded-xl transition-all glow-crimson flex items-center justify-center space-x-2 mt-2">
+                        <span>Register & Sync Profiling</span>
+                        <i class="fa-solid fa-user-plus text-xs"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </template>
+
+    <!-- Main Application Interface -->
+    <template x-if="isAuthenticated">
+        <div class="min-h-screen flex flex-col bg-obsidian">
+            
+            <!-- Top Navigation Header -->
+            <header class="h-16 border-b border-obsidianBorder bg-obsidianCard/90 backdrop-blur-md sticky top-0 z-40 px-6 flex items-center justify-between">
+                <div class="flex items-center space-x-6">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-9 h-9 rounded-xl bg-crimson/20 border border-crimson flex items-center justify-center glow-crimson-subtle">
+                            <i class="fa-solid fa-gem text-crimson"></i>
+                        </div>
+                        <div>
+                            <span class="font-black tracking-wider text-white text-lg font-mono">DX AMETHYST</span>
+                            <span class="block text-[10px] text-crimson font-mono tracking-widest uppercase">PRO ESPORTS CLIENT</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Exact Menu Categories -->
+                    <nav class="hidden md:flex items-center space-x-1 ml-6">
+                        <button @click="currentTab = 'dashboard'" 
+                            :class="currentTab === 'dashboard' ? 'bg-crimson/15 text-crimson border-crimson/50' : 'text-slate-400 hover:text-white border-transparent'"
+                            class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all">
+                            <i class="fa-solid fa-chart-pie mr-1.5"></i> Dashboard
+                        </button>
+                        <button @click="currentTab = 'brackets'" 
+                            :class="currentTab === 'brackets' ? 'bg-crimson/15 text-crimson border-crimson/50' : 'text-slate-400 hover:text-white border-transparent'"
+                            class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all">
+                            <i class="fa-solid fa-sitemap mr-1.5"></i> Scrimmage Bracket
+                        </button>
+                        <button @click="currentTab = 'chat'" 
+                            :class="currentTab === 'chat' ? 'bg-crimson/15 text-crimson border-crimson/50' : 'text-slate-400 hover:text-white border-transparent'"
+                            class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all relative">
+                            <i class="fa-solid fa-comments mr-1.5"></i> Lobby Chat Room
+                            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-crimson rounded-full animate-ping"></span>
+                        </button>
+                        <button @click="currentTab = 'profiling'" 
+                            :class="currentTab === 'profiling' ? 'bg-crimson/15 text-crimson border-crimson/50' : 'text-slate-400 hover:text-white border-transparent'"
+                            class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all">
+                            <i class="fa-solid fa-users-rectangle mr-1.5"></i> Profiling
+                        </button>
+                        <button @click="currentTab = 'etc'" 
+                            :class="currentTab === 'etc' ? 'bg-crimson/15 text-crimson border-crimson/50' : 'text-slate-400 hover:text-white border-transparent'"
+                            class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all">
+                            <i class="fa-solid fa-sliders mr-1.5"></i> Etc ...
+                        </button>
+                    </nav>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <div class="hidden lg:flex items-center space-x-3 bg-obsidian px-3.5 py-1.5 rounded-xl border border-obsidianBorder">
+                        <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                        <div class="text-right">
+                            <div class="text-xs font-bold text-white" x-text="currentUser.ign"></div>
+                            <div class="text-[10px] text-crimson font-mono" x-text="currentUser.role + ' • ' + currentUser.squadOrg + ' T' + currentUser.teamNumber"></div>
+                        </div>
+                    </div>
+                    
+                    <template x-if="currentUser.isAdmin">
+                        <span class="px-2.5 py-1 bg-crimson/20 border border-crimson/60 text-crimson rounded-lg text-[10px] font-mono font-bold uppercase tracking-wider">
+                            <i class="fa-solid fa-shield-halved mr-1"></i> Admin
+                        </span>
+                    </template>
+
+                    <button @click="logout" title="Logout" class="w-10 h-10 rounded-xl bg-obsidian border border-obsidianBorder flex items-center justify-center text-slate-400 hover:text-crimson hover:border-crimson/50 transition-all">
+                        <i class="fa-solid fa-power-off text-sm"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Mobile Navigation Bar -->
+            <div class="md:hidden flex items-center justify-around bg-obsidianCard border-b border-obsidianBorder p-2 text-xs">
+                <button @click="currentTab = 'dashboard'" :class="currentTab === 'dashboard' ? 'text-crimson' : 'text-slate-400'" class="flex flex-col items-center py-1">
+                    <i class="fa-solid fa-chart-pie text-sm mb-1"></i> Dashboard
+                </button>
+                <button @click="currentTab = 'brackets'" :class="currentTab === 'brackets' ? 'text-crimson' : 'text-slate-400'" class="flex flex-col items-center py-1">
+                    <i class="fa-solid fa-sitemap text-sm mb-1"></i> Brackets
+                </button>
+                <button @click="currentTab = 'chat'" :class="currentTab === 'chat' ? 'text-crimson' : 'text-slate-400'" class="flex flex-col items-center py-1">
+                    <i class="fa-solid fa-comments text-sm mb-1"></i> Chat
+                </button>
+                <button @click="currentTab = 'profiling'" :class="currentTab === 'profiling' ? 'text-crimson' : 'text-slate-400'" class="flex flex-col items-center py-1">
+                    <i class="fa-solid fa-users text-sm mb-1"></i> Profiling
+                </button>
+                <button @click="currentTab = 'etc'" :class="currentTab === 'etc' ? 'text-crimson' : 'text-slate-400'" class="flex flex-col items-center py-1">
+                    <i class="fa-solid fa-sliders text-sm mb-1"></i> Etc
+                </button>
+            </div>
+
+            <!-- Main Dynamic Content Workspace -->
+            <main class="flex-1 p-6 max-w-7xl mx-auto w-full">
+
+                <!-- DASHBOARD TAB -->
+                <div x-show="currentTab === 'dashboard'" x-transition class="space-y-6">
+                    <div class="glass-panel p-6 rounded-2xl relative overflow-hidden">
+                        <div class="absolute right-0 top-0 translate-x-8 -translate-y-8 w-64 h-64 bg-crimson/10 rounded-full blur-3xl pointer-events-none"></div>
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
+                            <div>
+                                <span class="text-xs font-mono text-crimson uppercase tracking-widest font-bold">DX Amethyst Championship Hub</span>
+                                <h2 class="text-2xl md:text-3xl font-black text-white mt-1">Welcome back, <span class="text-crimson" x-text="currentUser.ign"></span></h2>
+                                <p class="text-sm text-slate-400 mt-1">Tier-1 professional scrimmage matrix initialized. 32 squads synced across 8 major organizations.</p>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <button @click="currentTab = 'brackets'" class="px-5 py-2.5 bg-crimson hover:bg-crimson-hover text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all glow-crimson flex items-center space-x-2">
+                                    <span>View Scrimmage Brackets</span>
+                                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="glass-panel p-5 rounded-2xl border border-obsidianBorder">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs font-mono text-slate-400 uppercase tracking-wider">Active Squads</span>
+                                <div class="w-9 h-9 rounded-xl bg-crimson/10 text-crimson flex items-center justify-center">
+                                    <i class="fa-solid fa-shield-cat"></i>
+                                </div>
+                            </div>
+                            <div class="text-3xl font-black text-white font-mono">32 / 32</div>
+                            <div class="text-[11px] text-emerald-400 mt-2 flex items-center">
+                                <i class="fa-solid fa-circle-check mr-1"></i> Synchronized with profiling
+                            </div>
+                        </div>
+
+                        <div class="glass-panel p-5 rounded-2xl border border-obsidianBorder">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs font-mono text-slate-400 uppercase tracking-wider">Major Organizations</span>
+                                <div class="w-9 h-9 rounded-xl bg-crimson/10 text-crimson flex items-center justify-center">
+                                    <i class="fa-solid fa-building-shield"></i>
+                                </div>
+                            </div>
+                            <div class="text-3xl font-black text-white font-mono">8</div>
+                            <div class="text-[11px] text-slate-400 mt-2">SOLAR, NOVA, Vanguard, etc.</div>
+                        </div>
+
+                        <div class="glass-panel p-5 rounded-2xl border border-obsidianBorder">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs font-mono text-slate-400 uppercase tracking-wider">Scheduled Scrims</span>
+                                <div class="w-9 h-9 rounded-xl bg-crimson/10 text-crimson flex items-center justify-center">
+                                    <i class="fa-solid fa-calendar-days"></i>
+                                </div>
+                            </div>
+                            <div class="text-3xl font-black text-white font-mono" x-text="matches.length"></div>
+                            <div class="text-[11px] text-crimson mt-2 flex items-center">
+                                <i class="fa-solid fa-bolt mr-1"></i> Qualifiers to Finals
+                            </div>
+                        </div>
+
+                        <div class="glass-panel p-5 rounded-2xl border border-obsidianBorder">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs font-mono text-slate-400 uppercase tracking-wider">Battle Room Slots</span>
+                                <div class="w-9 h-9 rounded-xl bg-crimson/10 text-crimson flex items-center justify-center">
+                                    <i class="fa-solid fa-users"></i>
+                                </div>
+                            </div>
+                            <div class="text-3xl font-black text-white font-mono">11 <span class="text-xs font-normal text-slate-400">Slots</span></div>
+                            <div class="text-[11px] text-emerald-400 mt-2">Team A(5) + Team B(5) + Spec(1)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SCRIMMAGE BRACKET TAB -->
+                <div x-show="currentTab === 'brackets'" x-transition class="space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <span class="text-xs font-mono text-crimson uppercase tracking-widest font-bold">Tournament Matrix</span>
+                            <h2 class="text-2xl font-black text-white mt-0.5">Scrimmage Bracket (Qualifiers to Championship)</h2>
+                        </div>
+                        <template x-if="currentUser.isAdmin">
+                            <button @click="openCreateMatchModal" class="px-4 py-2 bg-crimson hover:bg-crimson-hover text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all glow-crimson flex items-center space-x-2">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>Create Matchup</span>
+                            </button>
+                        </template>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 pb-2 border-b border-obsidianBorder">
+                        <button @click="bracketFilter = 'ALL'" :class="bracketFilter === 'ALL' ? 'bg-crimson text-white font-bold' : 'bg-obsidianCard text-slate-400 hover:text-white'" class="px-3.5 py-1.5 rounded-xl text-xs uppercase font-mono border border-obsidianBorder transition-all">
+                            All Stages
+                        </button>
+                        <template x-for="stage in stagesList" :key="stage">
+                            <button @click="bracketFilter = stage" :class="bracketFilter === stage ? 'bg-crimson text-white font-bold' : 'bg-obsidianCard text-slate-400 hover:text-white'" class="px-3.5 py-1.5 rounded-xl text-xs uppercase font-mono border border-obsidianBorder transition-all" x-text="stage">
+                            </button>
+                        </template>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <template x-for="match in filteredMatches" :key="match.id">
+                            <div class="glass-panel p-5 rounded-2xl border border-obsidianBorder hover:border-crimson/50 transition-all relative group">
+                                <div class="flex items-center justify-between mb-4 pb-3 border-b border-obsidianBorder">
+                                    <div class="flex items-center space-x-2">
+                                        <span class="px-2.5 py-1 bg-crimson/10 text-crimson rounded-lg text-[10px] font-mono font-bold uppercase" x-text="match.stage"></span>
+                                        <span class="text-xs text-slate-400 font-mono" x-text="match.date + ' • ' + match.time"></span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span :class="{
+                                            'bg-emerald-500/10 text-emerald-400 border-emerald-500/30': match.status === 'LIVE',
+                                            'bg-amber-500/10 text-amber-400 border-amber-500/30': match.status === 'UPCOMING',
+                                            'bg-slate-700 text-slate-300 border-slate-600': match.status === 'COMPLETED'
+                                        }" class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold border uppercase" x-text="match.status"></span>
+
+                                        <template x-if="currentUser.isAdmin">
+                                            <div class="flex items-center space-x-1">
+                                                <button @click="editMatch(match)" class="w-7 h-7 bg-obsidian rounded-lg border border-obsidianBorder text-slate-400 hover:text-white hover:border-crimson flex items-center justify-center text-xs">
+                                                    <i class="fa-solid fa-pen"></i>
+                                                </button>
+                                                <button @click="deleteMatch(match.id)" class="w-7 h-7 bg-obsidian rounded-lg border border-obsidianBorder text-slate-400 hover:text-red-400 hover:border-red-500 flex items-center justify-center text-xs">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-7 gap-2 items-center mb-4 bg-obsidian p-4 rounded-xl border border-obsidianBorder">
+                                    <div class="col-span-3 text-center">
+                                        <div class="font-black text-white text-base truncate" x-text="match.teamA"></div>
+                                        <div class="text-[10px] text-slate-400 font-mono uppercase mt-0.5">Team A</div>
+                                    </div>
+                                    <div class="col-span-1 text-center font-mono font-black text-xl text-crimson">
+                                        <span x-text="match.scoreA"></span> - <span x-text="match.scoreB"></span>
+                                    </div>
+                                    <div class="col-span-3 text-center">
+                                        <div class="font-black text-white text-base truncate" x-text="match.teamB"></div>
+                                        <div class="text-[10px] text-slate-400 font-mono uppercase mt-0.5">Team B</div>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button @click="openBattleRoomModal(match)" 
+                                        class="py-3 bg-obsidian hover:bg-crimson hover:text-white text-slate-200 border border-obsidianBorder hover:border-crimson rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center space-x-2 group-hover:border-crimson/50">
+                                        <i class="fa-solid fa-users text-crimson group-hover:text-white"></i>
+                                        <span>Enter Battle Slot</span>
+                                    </button>
+                                    <button @click="openLobbyChatModal(match)" 
+                                        class="py-3 bg-obsidian hover:bg-crimson hover:text-white text-slate-200 border border-obsidianBorder hover:border-crimson rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center space-x-2 group-hover:border-crimson/50">
+                                        <i class="fa-solid fa-comments text-crimson group-hover:text-white"></i>
+                                        <span>Lobby Chat</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- LOBBY CHAT ROOM TAB -->
+                <div x-show="currentTab === 'chat'" x-transition class="space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <span class="text-xs font-mono text-crimson uppercase tracking-widest font-bold">Tactical Communications</span>
+                            <h2 class="text-2xl font-black text-white mt-0.5">Lobby Chat Room for Scrim Fight</h2>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <select x-model="activeMatchId" @change="switchActiveMatch" class="bg-obsidianCard border border-obsidianBorder rounded-xl px-4 py-2.5 text-xs font-mono text-white focus:outline-none focus:border-crimson">
+                                <option value="" disabled>Select Active Match Scrimmage</option>
+                                <template x-for="m in matches" :key="m.id">
+                                    <option :value="m.id" x-text="m.stage + ': ' + m.teamA + ' vs ' + m.teamB"></option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+
+                    <template x-if="!activeMatch">
+                        <div class="glass-panel p-12 rounded-2xl text-center">
+                            <div class="w-16 h-16 bg-crimson/10 text-crimson rounded-2xl border border-crimson/30 flex items-center justify-center mx-auto mb-4 text-xl">
+                                <i class="fa-solid fa-comments"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white">No Matchroom Selected</h3>
+                            <p class="text-xs text-slate-400 mt-1 max-w-md mx-auto">Please select a scrimmage match from the dropdown above or click 'Lobby Chat' from any match card.</p>
+                        </div>
+                    </template>
+
+                    <template x-if="activeMatch">
+                        <div class="glass-panel p-6 rounded-2xl flex flex-col h-[650px] border border-obsidianBorder">
+                            <div class="flex items-center justify-between pb-4 border-b border-obsidianBorder mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 rounded-xl bg-crimson/20 border border-crimson flex items-center justify-center text-crimson">
+                                        <i class="fa-solid fa-comments text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <span class="text-[10px] font-mono text-crimson uppercase font-bold" x-text="activeMatch.stage"></span>
+                                        <h3 class="text-base font-black text-white" x-text="activeMatch.teamA + ' vs ' + activeMatch.teamB"></h3>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-full text-[10px] font-mono font-bold flex items-center">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse mr-1.5"></span> LIVE SECURE TRANSMISSION
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="flex-1 bg-obsidian rounded-xl border border-obsidianBorder p-4 overflow-y-auto space-y-3 mb-4 flex flex-col" id="main-chat-feed">
+                                <template x-for="msg in currentChatMessages" :key="msg.id">
+                                    <div class="p-3 bg-obsidianCard rounded-xl border border-obsidianBorder text-xs space-y-1.5">
+                                        <div class="flex items-center justify-between">
+                                            <span class="font-bold text-white flex items-center space-x-2">
+                                                <span class="px-2 py-0.5 bg-crimson/20 text-crimson rounded font-mono text-[10px]" x-text="'[' + msg.tag + ']'"></span>
+                                                <span x-text="msg.sender"></span>
+                                            </span>
+                                            <span class="text-[10px] text-slate-500 font-mono" x-text="msg.time"></span>
+                                        </div>
+                                        <p class="text-slate-300 break-words pl-1 leading-relaxed" x-text="msg.text"></p>
+                                    </div>
+                                </template>
+                                <template x-if="currentChatMessages.length === 0">
+                                    <div class="my-auto text-center text-slate-500 text-xs italic">
+                                        No tactical transmissions yet. Start chatting below.
+                                    </div>
+                                </template>
+                            </div>
+
+                            <form @submit.prevent="sendChatMessage" class="flex gap-3">
+                                <input type="text" x-model="chatInput" placeholder="Type tactical message for scrimmage room..." 
+                                    class="flex-1 bg-obsidian border border-obsidianBorder rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-crimson">
+                                <button type="submit" class="px-6 py-3 bg-crimson hover:bg-crimson-hover text-white rounded-xl text-xs font-bold uppercase transition-all glow-crimson flex items-center space-x-2">
+                                    <span>Transmit</span>
+                                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- PROFILING TAB -->
+                <div x-show="currentTab === 'profiling'" x-transition class="space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <span class="text-xs font-mono text-crimson uppercase tracking-widest font-bold">Database & Rosters</span>
+                            <h2 class="text-2xl font-black text-white mt-0.5">Squad Profiling (32 Squads across 8 Orgs)</h2>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <select x-model="selectedOrgFilter" class="bg-obsidianCard border border-obsidianBorder rounded-xl px-4 py-2.5 text-xs font-mono text-white focus:outline-none focus:border-crimson">
+                                <option value="ALL">All 8 Organizations</option>
+                                <template x-for="org in organizations" :key="org">
+                                    <option :value="org" x-text="org"></option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <template x-for="squad in filteredSquads" :key="squad.id">
+                            <div class="glass-panel p-4 rounded-2xl border border-obsidianBorder hover:border-crimson/50 transition-all space-y-3">
+                                <div class="flex items-center justify-between pb-2 border-b border-obsidianBorder">
+                                    <div>
+                                        <span class="text-[10px] font-mono text-crimson uppercase font-bold" x-text="squad.org"></span>
+                                        <h3 class="text-sm font-black text-white" x-text="squad.name"></h3>
+                                    </div>
+                                    <span class="px-2 py-0.5 bg-obsidian border border-obsidianBorder text-slate-300 rounded font-mono text-[10px]" x-text="'Team ' + squad.teamNum"></span>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <template x-for="(player, pIndex) in squad.players" :key="pIndex">
+                                        <div class="p-2.5 bg-obsidian rounded-xl border border-obsidianBorder text-xs space-y-1">
+                                            <div class="flex items-center justify-between">
+                                                <span class="font-bold text-white truncate" x-text="player.ign || 'Unassigned'"></span>
+                                                <span class="px-1.5 py-0.5 bg-crimson/15 text-crimson rounded text-[9px] font-mono font-bold" x-text="player.role"></span>
+                                            </div>
+                                            <div class="flex items-center justify-between text-[10px] text-slate-400 font-mono">
+                                                <span x-text="'ID: ' + (player.id || 'N/A')"></span>
+                                                <template x-if="currentUser.isAdmin || currentUser.email === player.userEmail">
+                                                    <button @click="editPlayerSlot(squad, pIndex)" class="text-crimson hover:underline">Edit</button>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- ETC... TAB -->
+                <div x-show="currentTab === 'etc'" x-transition class="space-y-6">
+                    <div>
+                        <span class="text-xs font-mono text-crimson uppercase tracking-widest font-bold">System Utilities</span>
+                        <h2 class="text-2xl font-black text-white mt-0.5">System Telemetry & Database Tools</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="glass-panel p-6 rounded-2xl space-y-4">
+                            <h3 class="font-bold text-white text-base flex items-center">
+                                <i class="fa-solid fa-microchip text-crimson mr-2"></i> Client Telemetry Metrics
+                            </h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="flex justify-between text-xs font-mono mb-1">
+                                        <span class="text-slate-400">Match Matrix CPU Load</span>
+                                        <span class="text-emerald-400">14.2%</span>
+                                    </div>
+                                    <div class="w-full h-2 bg-obsidian rounded-full overflow-hidden border border-obsidianBorder">
+                                        <div class="bg-emerald-500 h-full w-[14%]"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs font-mono mb-1">
+                                        <span class="text-slate-400">Active WebSocket Latency</span>
+                                        <span class="text-emerald-400">12ms (Optimal)</span>
+                                    </div>
+                                    <div class="w-full h-2 bg-obsidian rounded-full overflow-hidden border border-obsidianBorder">
+                                        <div class="bg-crimson h-full w-[25%]"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel p-6 rounded-2xl space-y-4">
+                            <h3 class="font-bold text-white text-base flex items-center">
+                                <i class="fa-solid fa-database text-crimson mr-2"></i> Database & State Management
+                            </h3>
+                            <p class="text-xs text-slate-400">Export the complete DX Amethyst JSON database or execute a factory reset to restore default tournament rosters.</p>
+                            
+                            <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                                <button @click="exportDatabase" class="flex-1 py-3 bg-obsidian hover:bg-obsidianCard text-white border border-obsidianBorder hover:border-crimson rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center space-x-2">
+                                    <i class="fa-solid fa-download text-crimson"></i>
+                                    <span>Export JSON Database</span>
+                                </button>
+                                <button @click="openResetModal" class="flex-1 py-3 bg-red-950/40 hover:bg-red-900/60 text-red-200 border border-red-600/40 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center space-x-2">
+                                    <i class="fa-solid fa-triangle-exclamation text-crimson"></i>
+                                    <span>Factory Reset</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+
+            <footer class="h-14 border-t border-obsidianBorder bg-obsidianCard/60 px-6 flex items-center justify-between text-xs text-slate-500 font-mono mt-auto">
+                <div>DX AMETHYST SQUAD ROSTER PRO v5.2</div>
+                <div>SECURE ESPORTS CLIENT • ALL RIGHTS RESERVED</div>
+            </footer>
+        </div>
+    </template>
+
+    <!-- General Modal Popup -->
+    <template x-if="modal.show">
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-obsidian/80 backdrop-blur-sm px-4">
+            <div class="w-full max-w-sm glass-panel p-6 rounded-2xl border border-obsidianBorder space-y-4 text-center">
+                <div class="w-12 h-12 bg-crimson/20 text-crimson rounded-2xl border border-crimson/40 flex items-center justify-center mx-auto text-lg">
+                    <i :class="modal.icon"></i>
+                </div>
+                <h3 class="text-base font-bold text-white" x-text="modal.title"></h3>
+                <p class="text-xs text-slate-300" x-text="modal.message"></p>
+                <div class="flex space-x-2 pt-2">
+                    <template x-if="modal.isConfirm">
+                        <button @click="modal.confirmCallback(); closeModals()" class="flex-1 py-2.5 bg-crimson hover:bg-crimson-hover text-white rounded-xl text-xs font-bold uppercase">Confirm</button>
+                    </template>
+                    <button @click="closeModals()" class="flex-1 py-2.5 bg-obsidian border border-obsidianBorder hover:border-crimson text-white rounded-xl text-xs font-bold uppercase">Close</button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Separated Battle Room Slot Modal -->
+    <template x-if="battleRoomModal.show">
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-obsidian/90 backdrop-blur-md px-4 overflow-y-auto">
+            <div class="w-full max-w-4xl glass-panel p-6 rounded-2xl border border-obsidianBorder space-y-6 my-8">
+                <div class="flex items-center justify-between pb-4 border-b border-obsidianBorder">
+                    <div>
+                        <span class="text-[10px] font-mono text-crimson uppercase font-bold" x-text="battleRoomModal.match.stage"></span>
+                        <h3 class="text-xl font-black text-white" x-text="'Battle Room Slots: ' + battleRoomModal.match.teamA + ' vs ' + battleRoomModal.match.teamB"></h3>
+                    </div>
+                    <button @click="battleRoomModal.show = false" class="w-9 h-9 bg-obsidian border border-obsidianBorder rounded-xl text-slate-400 hover:text-white flex items-center justify-center">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-xs font-mono uppercase text-crimson font-bold"><i class="fa-solid fa-shield mr-1"></i> Team A: <span x-text="battleRoomModal.match.teamA"></span> (Slots 1-5)</h4>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-5 gap-2">
+                            <template x-for="slotNum in [1, 2, 3, 4, 5]" :key="slotNum">
+                                <div @click="claimBattleSlot(battleRoomModal.match, slotNum, battleRoomModal.match.teamA)" 
+                                    :class="getSpecificSlot(battleRoomModal.match, slotNum).playerIGN ? 'bg-obsidian border-crimson/50' : 'bg-obsidian/40 border-obsidianBorder hover:border-crimson/30'"
+                                    class="p-3 rounded-xl border flex flex-col justify-between cursor-pointer transition-all min-h-[95px] relative group">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[10px] font-mono text-slate-500 font-bold" x-text="'SLOT ' + slotNum"></span>
+                                        <template x-if="getSpecificSlot(battleRoomModal.match, slotNum).playerIGN">
+                                            <span class="text-[9px] px-1.5 py-0.5 bg-crimson/20 text-crimson rounded font-mono font-bold" x-text="getSpecificSlot(battleRoomModal.match, slotNum).role"></span>
+                                        </template>
+                                    </div>
+                                    <div class="my-auto text-center">
+                                        <template x-if="getSpecificSlot(battleRoomModal.match, slotNum).playerIGN">
+                                            <div>
+                                                <div class="text-xs font-bold text-white truncate" x-text="getSpecificSlot(battleRoomModal.match, slotNum).playerIGN"></div>
+                                                <div class="text-[9px] text-slate-400 font-mono" x-text="getSpecificSlot(battleRoomModal.match, slotNum).playerId"></div>
+                                            </div>
+                                        </template>
+                                        <template x-if="!getSpecificSlot(battleRoomModal.match, slotNum).playerIGN">
+                                            <div class="text-[11px] text-slate-500 italic group-hover:text-crimson">Click to Claim</div>
+                                        </template>
+                                    </div>
+                                    <template x-if="getSpecificSlot(battleRoomModal.match, slotNum).playerIGN && (currentUser.isAdmin || getSpecificSlot(battleRoomModal.match, slotNum).userId === currentUser.email)">
+                                        <button @click.stop="leaveBattleSlot(battleRoomModal.match, slotNum)" class="absolute bottom-1 right-1 text-[9px] text-red-400 hover:text-red-300 px-1">Leave</button>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-xs font-mono uppercase text-sky-400 font-bold"><i class="fa-solid fa-shield mr-1"></i> Team B: <span x-text="battleRoomModal.match.teamB"></span> (Slots 6-10)</h4>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-5 gap-2">
+                            <template x-for="slotNum in [6, 7, 8, 9, 10]" :key="slotNum">
+                                <div @click="claimBattleSlot(battleRoomModal.match, slotNum, battleRoomModal.match.teamB)" 
+                                    :class="getSpecificSlot(battleRoomModal.match, slotNum).playerIGN ? 'bg-obsidian border-sky-500/50' : 'bg-obsidian/40 border-obsidianBorder hover:border-sky-500/30'"
+                                    class="p-3 rounded-xl border flex flex-col justify-between cursor-pointer transition-all min-h-[95px] relative group">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[10px] font-mono text-slate-500 font-bold" x-text="'SLOT ' + slotNum"></span>
+                                        <template x-if="getSpecificSlot(battleRoomModal.match, slotNum).playerIGN">
+                                            <span class="text-[9px] px-1.5 py-0.5 bg-sky-500/20 text-sky-400 rounded font-mono font-bold" x-text="getSpecificSlot(battleRoomModal.match, slotNum).role"></span>
+                                        </template>
+                                    </div>
+                                    <div class="my-auto text-center">
+                                        <template x-if="getSpecificSlot(battleRoomModal.match, slotNum).playerIGN">
+                                            <div>
+                                                <div class="text-xs font-bold text-white truncate" x-text="getSpecificSlot(battleRoomModal.match, slotNum).playerIGN"></div>
+                                                <div class="text-[9px] text-slate-400 font-mono" x-text="getSpecificSlot(battleRoomModal.match, slotNum).playerId"></div>
+                                            </div>
+                                        </template>
+                                        <template x-if="!getSpecificSlot(battleRoomModal.match, slotNum).playerIGN">
+                                            <div class="text-[11px] text-slate-500 italic group-hover:text-sky-400">Click to Claim</div>
+                                        </template>
+                                    </div>
+                                    <template x-if="getSpecificSlot(battleRoomModal.match, slotNum).playerIGN && (currentUser.isAdmin || getSpecificSlot(battleRoomModal.match, slotNum).userId === currentUser.email)">
+                                        <button @click.stop="leaveBattleSlot(battleRoomModal.match, slotNum)" class="absolute bottom-1 right-1 text-[9px] text-red-400 hover:text-red-300 px-1">Leave</button>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-xs font-mono uppercase text-amber-400 font-bold"><i class="fa-solid fa-eye mr-1"></i> Slot 11: Spectator / Admin Room</h4>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-6 gap-2">
+                            <div @click="claimBattleSlot(battleRoomModal.match, 11, 'SPECTATOR')" 
+                                :class="getSpecificSlot(battleRoomModal.match, 11).playerIGN ? 'bg-obsidian border-amber-500/50' : 'bg-obsidian/40 border-obsidianBorder hover:border-amber-500/30'"
+                                class="p-3 rounded-xl border flex flex-col justify-between cursor-pointer transition-all min-h-[95px] relative group sm:col-span-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10px] font-mono text-slate-500 font-bold">SLOT 11</span>
+                                    <template x-if="getSpecificSlot(battleRoomModal.match, 11).playerIGN">
+                                        <span class="text-[9px] px-1.5 py-0.5 bg-amber-500/20 text-amber-400 rounded font-mono font-bold">SPECTATOR</span>
+                                    </template>
+                                </div>
+                                <div class="my-auto text-center">
+                                    <template x-if="getSpecificSlot(battleRoomModal.match, 11).playerIGN">
+                                        <div>
+                                            <div class="text-xs font-bold text-white truncate" x-text="getSpecificSlot(battleRoomModal.match, 11).playerIGN"></div>
+                                            <div class="text-[9px] text-slate-400 font-mono" x-text="getSpecificSlot(battleRoomModal.match, 11).playerId"></div>
+                                        </div>
+                                    </template>
+                                    <template x-if="!getSpecificSlot(battleRoomModal.match, 11).playerIGN">
+                                        <div class="text-[11px] text-slate-500 italic group-hover:text-amber-400">Claim Spec Slot</div>
+                                    </template>
+                                </div>
+                                <template x-if="getSpecificSlot(battleRoomModal.match, 11).playerIGN && (currentUser.isAdmin || getSpecificSlot(battleRoomModal.match, 11).userId === currentUser.email)">
+                                    <button @click.stop="leaveBattleSlot(battleRoomModal.match, 11)" class="absolute bottom-1 right-1 text-[9px] text-red-400 hover:text-red-300 px-1">Leave</button>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-obsidianBorder flex justify-end">
+                    <button @click="battleRoomModal.show = false" class="px-6 py-2.5 bg-obsidian border border-obsidianBorder hover:border-crimson text-white rounded-xl text-xs font-bold uppercase">Close Slot Manager</button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Create / Edit Match Modal (Fixed & Operational) -->
+    <template x-if="matchModal.show">
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-obsidian/80 backdrop-blur-sm px-4">
+            <div class="w-full max-w-md glass-panel p-6 rounded-2xl border border-obsidianBorder space-y-4">
+                <h3 class="text-base font-bold text-white" x-text="matchModal.isEdit ? 'Edit Matchup' : 'Create Matchup'"></h3>
+                
+                <form @submit.prevent="saveMatch" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-mono text-slate-400 uppercase mb-1">Stage</label>
+                        <select x-model="matchModal.form.stage" class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-3 py-2 text-xs text-white focus:border-crimson">
+                            <template x-for="stage in stagesList" :key="stage">
+                                <option :value="stage" x-text="stage"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-mono text-slate-400 uppercase mb-1">Team A</label>
+                            <select x-model="matchModal.form.teamA" class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-3 py-2 text-xs text-white focus:border-crimson">
+                                <template x-for="squad in allSquadNames" :key="squad">
+                                    <option :value="squad" x-text="squad"></option>
+                                </template>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-mono text-slate-400 uppercase mb-1">Team B</label>
+                            <select x-model="matchModal.form.teamB" class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-3 py-2 text-xs text-white focus:border-crimson">
+                                <template x-for="squad in allSquadNames" :key="squad">
+                                    <option :value="squad" x-text="squad"></option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-mono text-slate-400 uppercase mb-1">Date</label>
+                            <input type="text" x-model="matchModal.form.date" class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-3 py-2 text-xs text-white" placeholder="OCT 29">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-mono text-slate-400 uppercase mb-1">Time</label>
+                            <input type="text" x-model="matchModal.form.time" class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-3 py-2 text-xs text-white" placeholder="19:00 PHT">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div>
+                            <label class="block text-xs font-mono text-slate-400 uppercase mb-1">Status</label>
+                            <select x-model="matchModal.form.status" class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-2 py-2 text-xs text-white">
+                                <option value="UPCOMING">UPCOMING</option>
+                                <option value="LIVE">LIVE</option>
+                                <option value="COMPLETED">COMPLETED</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-mono text-slate-400 uppercase mb-1">Score A</label>
+                            <input type="number" x-model.number="matchModal.form.scoreA" class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-2 py-2 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-mono text-slate-400 uppercase mb-1">Score B</label>
+                            <input type="number" x-model.number="matchModal.form.scoreB" class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-2 py-2 text-xs text-white">
+                        </div>
+                    </div>
+                    <div class="flex space-x-2 pt-2">
+                        <button type="submit" class="flex-1 py-2.5 bg-crimson hover:bg-crimson-hover text-white rounded-xl text-xs font-bold uppercase">Save Match</button>
+                        <button type="button" @click="matchModal.show = false" class="flex-1 py-2.5 bg-obsidian border border-obsidianBorder text-slate-300 rounded-xl text-xs font-bold uppercase">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </template>
+
+    <!-- Edit Player Slot Modal -->
+    <template x-if="playerModal.show">
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-obsidian/80 backdrop-blur-sm px-4">
+            <div class="w-full max-w-sm glass-panel p-6 rounded-2xl border border-obsidianBorder space-y-4">
+                <h3 class="text-base font-bold text-white">Edit Player Slot</h3>
+                <form @submit.prevent="savePlayerSlot" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-mono text-slate-400 uppercase mb-1">In-Game Name (IGN)</label>
+                        <input type="text" x-model="playerModal.form.ign" required class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-3 py-2 text-xs text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono text-slate-400 uppercase mb-1">Player ID</label>
+                        <input type="text" x-model="playerModal.form.id" required class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-3 py-2 text-xs text-white font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono text-slate-400 uppercase mb-1">Role (Strictly Restricted)</label>
+                        <select x-model="playerModal.form.role" class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-3 py-2 text-xs text-white">
+                            <template x-for="role in rolesList" :key="role">
+                                <option :value="role" x-text="role"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div class="flex space-x-2 pt-2">
+                        <button type="submit" class="flex-1 py-2.5 bg-crimson hover:bg-crimson-hover text-white rounded-xl text-xs font-bold uppercase">Update Slot</button>
+                        <button type="button" @click="playerModal.show = false" class="flex-1 py-2.5 bg-obsidian border border-obsidianBorder text-slate-300 rounded-xl text-xs font-bold uppercase">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </template>
+
+    <!-- Application Controller Logic -->
+    <script>
+        function dxAmethystApp() {
+            return {
+                isAuthenticated: false,
+                authTab: 'login',
+                authError: '',
+                currentTab: 'brackets', // Default landing on Scrimmage Bracket
+
+                loginForm: { email: '', password: '' },
+                signupForm: { email: '', ign: '', playerId: '', squadOrg: 'SOLAR', teamNumber: 1, role: 'MID', password: '' },
+                
+                currentUser: null,
+
+                organizations: ['SOLAR', 'NOVA', 'Vanguard', 'AURALITE', 'Emercian', 'Extraction', 'Prime', 'Nexa'],
+                stagesList: ['QUALIFIERS R1', 'QUALIFIERS R2', 'QUARTERFINALS', 'SEMIFINALS', 'CHAMPIONSHIP'],
+                rolesList: ['MID', 'GOLD', 'JUNGLE', 'EXP', 'ROAM', 'FLEX PRO'],
+
+                bracketFilter: 'ALL',
+                selectedOrgFilter: 'ALL',
+
+                squads: [],
+                matches: [],
+                chatMessages: {}, 
+                activeMatchId: null,
+                chatInput: '',
+
+                modal: { show: false, title: '', message: '', icon: 'fa-solid fa-circle-info', isConfirm: false, confirmCallback: null },
+                battleRoomModal: { show: false, match: null },
+                matchModal: { show: false, isEdit: false, form: { id: null, stage: 'QUALIFIERS R1', teamA: '', teamB: '', date: 'OCT 29', time: '19:00 PHT', status: 'UPCOMING', scoreA: 0, scoreB: 0, battleRooms: [] } },
+                playerModal: { show: false, squad: null, playerIndex: null, form: { ign: '', id: '', role: 'MID' } },
+
+                initApp() {
+                    const savedAuth = localStorage.getItem('dx_auth');
+                    if (savedAuth) {
+                        this.currentUser = JSON.parse(savedAuth);
+                        this.isAuthenticated = true;
+                    }
+
+                    const savedSquads = localStorage.getItem('dx_squads');
+                    if (savedSquads) {
+                        this.squads = JSON.parse(savedSquads);
+                    } else {
+                        this.generateDefaultSquads();
+                    }
+
+                    const savedMatches = localStorage.getItem('dx_matches');
+                    if (savedMatches) {
+                        this.matches = JSON.parse(savedMatches);
+                    } else {
+                        this.generateDefaultMatches();
+                    }
+
+                    const savedChats = localStorage.getItem('dx_chats');
+                    if (savedChats) {
+                        this.chatMessages = JSON.parse(savedChats);
+                    }
+
+                    if (this.matches.length > 0 && !this.activeMatchId) {
+                        this.activeMatchId = this.matches[0].id;
+                        this.initChatForMatch(this.activeMatchId);
+                    }
+                },
+
+                generateDefaultSquads() {
+                    let list = [];
+                    let idCounter = 1;
+                    this.organizations.forEach(org => {
+                        for (let t = 1; t <= 4; t++) {
+                            let squadName = org + ' ' + t;
+                            let players = [];
+                            this.rolesList.forEach((role, rIdx) => {
+                                if (rIdx < 5) {
+                                    players.push({
+                                        ign: org + ' • ' + role.charAt(0) + role.slice(1).toLowerCase(),
+                                        id: 'DX-' + (1000 + idCounter),
+                                        role: role,
+                                        userEmail: ''
+                                    });
+                                    idCounter++;
+                                }
+                            });
+                            list.push({
+                                id: org.toLowerCase() + '-t' + t,
+                                org: org,
+                                name: squadName,
+                                teamNum: t,
+                                players: players
+                            });
+                        }
+                    });
+                    this.squads = list;
+                    this.saveSquads();
+                },
+
+                generateDefaultMatches() {
+                    this.matches = [
+                        { id: 1, stage: 'QUALIFIERS R1', teamA: 'SOLAR 1', teamB: 'NOVA 2', date: 'OCT 26', time: '18:00 PHT', status: 'LIVE', scoreA: 1, scoreB: 0, battleRooms: this.initBattleRooms() },
+                        { id: 2, stage: 'QUALIFIERS R1', teamA: 'Vanguard 3', teamB: 'AURALITE 1', date: 'OCT 26', time: '20:00 PHT', status: 'UPCOMING', scoreA: 0, scoreB: 0, battleRooms: this.initBattleRooms() },
+                        { id: 3, stage: 'QUARTERFINALS', teamA: 'Emercian 2', teamB: 'Extraction 1', date: 'OCT 27', time: '19:00 PHT', status: 'UPCOMING', scoreA: 0, scoreB: 0, battleRooms: this.initBattleRooms() },
+                        { id: 4, stage: 'SEMIFINALS', teamA: 'Prime 1', teamB: 'Nexa 4', date: 'OCT 28', time: '21:00 PHT', status: 'UPCOMING', scoreA: 0, scoreB: 0, battleRooms: this.initBattleRooms() },
+                        { id: 5, stage: 'CHAMPIONSHIP', teamA: 'SOLAR 1', teamB: 'Prime 1', date: 'OCT 30', time: '20:00 PHT', status: 'UPCOMING', scoreA: 0, scoreB: 0, battleRooms: this.initBattleRooms() }
+                    ];
+                    this.saveMatches();
+                },
+
+                initBattleRooms() {
+                    let rooms = {};
+                    for (let i = 1; i <= 11; i++) {
+                        rooms[i] = { slotNum: i, playerIGN: '', playerId: '', role: 'MID', userId: '' };
+                    }
+                    return rooms;
+                },
+
+                saveSquads() { localStorage.setItem('dx_squads', JSON.stringify(this.squads)); },
+                saveMatches() { localStorage.setItem('dx_matches', JSON.stringify(this.matches)); },
+                saveChats() { localStorage.setItem('dx_chats', JSON.stringify(this.chatMessages)); },
+
+                clearAuthError() { this.authError = ''; },
+
+                fillAdminDemo() {
+                    this.loginForm.email = 'admin@dxamethyst.com';
+                    this.loginForm.password = 'AdminPassword123';
+                },
+
+                handleLogin() {
+                    if (this.loginForm.email === 'admin@dxamethyst.com' && this.loginForm.password === 'AdminPassword123') {
+                        this.currentUser = {
+                            email: 'admin@dxamethyst.com',
+                            ign: 'DX • SUPREME ADMIN',
+                            playerId: 'DX-0001',
+                            squadOrg: 'SOLAR',
+                            teamNumber: 1,
+                            role: 'FLEX PRO',
+                            isAdmin: true
+                        };
+                        this.isAuthenticated = true;
+                        localStorage.setItem('dx_auth', JSON.stringify(this.currentUser));
+                        this.currentTab = 'brackets';
+                        return;
+                    }
+
+                    let users = JSON.parse(localStorage.getItem('dx_users') || '[]');
+                    let foundUser = users.find(u => u.email === this.loginForm.email && u.password === this.loginForm.password);
+                    if (foundUser) {
+                        this.currentUser = foundUser;
+                        this.isAuthenticated = true;
+                        localStorage.setItem('dx_auth', JSON.stringify(this.currentUser));
+                        this.currentTab = 'brackets';
+                        return;
+                    }
+
+                    this.authError = 'Invalid email or password. Please verify credentials.';
+                },
+
+                handleSignup() {
+                    if (!this.signupForm.email || !this.signupForm.ign || !this.signupForm.password) {
+                        this.authError = 'Please complete all required fields.';
+                        return;
+                    }
+
+                    let newUser = {
+                        email: this.signupForm.email,
+                        ign: this.signupForm.ign,
+                        playerId: this.signupForm.playerId || 'DX-9999',
+                        squadOrg: this.signupForm.squadOrg,
+                        teamNumber: Number(this.signupForm.teamNumber),
+                        role: this.signupForm.role,
+                        password: this.signupForm.password,
+                        isAdmin: false
+                    };
+
+                    // Save to users database
+                    let users = JSON.parse(localStorage.getItem('dx_users') || '[]');
+                    users.push(newUser);
+                    localStorage.setItem('dx_users', JSON.stringify(users));
+
+                    // Automatically sync with Profiling squad rosters!
+                    let targetSquad = this.squads.find(s => s.org === newUser.squadOrg && s.teamNum === newUser.teamNumber);
+                    if (targetSquad) {
+                        let playerSlot = targetSquad.players.find(p => p.role === newUser.role);
+                        if (playerSlot) {
+                            playerSlot.ign = newUser.ign;
+                            playerSlot.id = newUser.playerId;
+                            playerSlot.userEmail = newUser.email;
+                        } else {
+                            targetSquad.players.push({
+                                ign: newUser.ign,
+                                id: newUser.playerId,
+                                role: newUser.role,
+                                userEmail: newUser.email
+                            });
+                        }
+                        this.saveSquads();
+                    }
+
+                    this.currentUser = newUser;
+                    this.isAuthenticated = true;
+                    localStorage.setItem('dx_auth', JSON.stringify(this.currentUser));
+                    this.currentTab = 'brackets';
+                },
+
+                logout() {
+                    this.isAuthenticated = false;
+                    this.currentUser = null;
+                    localStorage.removeItem('dx_auth');
+                },
+
+                get allSquadNames() {
+                    return this.squads.map(s => s.name);
+                },
+
+                get filteredMatches() {
+                    if (this.bracketFilter === 'ALL') return this.matches;
+                    return this.matches.filter(m => m.stage === this.bracketFilter);
+                },
+
+                get filteredSquads() {
+                    if (this.selectedOrgFilter === 'ALL') return this.squads;
+                    return this.squads.filter(s => s.org === this.selectedOrgFilter);
+                },
+
+                canAccessBattleRoom(match) {
+                    if (this.currentUser.isAdmin) return true;
+                    let userSquadName = this.currentUser.squadOrg + ' ' + this.currentUser.teamNumber;
+                    return match.teamA === userSquadName || match.teamB === userSquadName;
+                },
+
+                openBattleRoomModal(match) {
+                    if (!this.canAccessBattleRoom(match)) {
+                        this.showModal('Access Restricted', 'Only members of ' + match.teamA + ' or ' + match.teamB + ' (and Admins) can access this battle room slot lineup.', 'fa-solid fa-lock');
+                        return;
+                    }
+                    this.battleRoomModal.match = match;
+                    this.battleRoomModal.show = true;
+                },
+
+                openLobbyChatModal(match) {
+                    this.activeMatchId = match.id;
+                    this.initChatForMatch(match.id);
+                    this.currentTab = 'chat';
+                    this.scrollChatToBottom();
+                },
+
+                switchActiveMatch() {
+                    if (this.activeMatchId) {
+                        this.initChatForMatch(this.activeMatchId);
+                        this.scrollChatToBottom();
+                    }
+                },
+
+                initChatForMatch(matchId) {
+                    if (!this.chatMessages[matchId]) {
+                        this.chatMessages[matchId] = [
+                            { 
+                                id: Date.now(), 
+                                sender: 'SYSTEM', 
+                                tag: 'ADMIN', 
+                                text: 'Match lobby chat room initialized for scrim fight #' + matchId, 
+                                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+                            }
+                        ];
+                        this.saveChats();
+                    }
+                },
+
+                get activeMatch() {
+                    return this.matches.find(m => m.id === Number(this.activeMatchId)) || this.matches[0] || null;
+                },
+
+                getSpecificSlot(match, slotNum) {
+                    if (!match.battleRooms) {
+                        match.battleRooms = this.initBattleRooms();
+                    }
+                    return match.battleRooms[slotNum];
+                },
+
+                claimBattleSlot(match, slotNum, teamName) {
+                    if (!match.battleRooms) {
+                        match.battleRooms = this.initBattleRooms();
+                    }
+                    let slot = match.battleRooms[slotNum];
+                    if (slot.playerIGN && slot.userId !== this.currentUser.email && !this.currentUser.isAdmin) {
+                        this.showModal('Slot Occupied', 'This battle slot is already claimed by another operative.', 'fa-solid fa-triangle-exclamation');
+                        return;
+                    }
+                    slot.playerIGN = this.currentUser.ign;
+                    slot.playerId = this.currentUser.playerId;
+                    slot.role = this.currentUser.role;
+                    slot.userId = this.currentUser.email;
+                    this.saveMatches();
+                },
+
+                leaveBattleSlot(match, slotNum) {
+                    if (!match || !match.battleRooms) return;
+                    let slot = match.battleRooms[slotNum];
+                    slot.playerIGN = '';
+                    slot.playerId = '';
+                    slot.role = 'MID';
+                    slot.userId = '';
+                    this.saveMatches();
+                },
+
+                get currentChatMessages() {
+                    if (!this.activeMatchId) return [];
+                    this.initChatForMatch(this.activeMatchId);
+                    return this.chatMessages[this.activeMatchId] || [];
+                },
+
+                sendChatMessage() {
+                    if (!this.chatInput.trim() || !this.activeMatchId) return;
+                    this.initChatForMatch(this.activeMatchId);
+                    
+                    let tag = this.currentUser.isAdmin ? 'ADMIN' : (this.currentUser.squadOrg + ' ' + this.currentUser.teamNumber);
+                    
+                    this.chatMessages[this.activeMatchId] = [
+                        ...this.chatMessages[this.activeMatchId],
+                        {
+                            id: Date.now(),
+                            sender: this.currentUser.ign,
+                            tag: tag,
+                            text: this.chatInput.trim(),
+                            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        }
+                    ];
+                    this.chatInput = '';
+                    this.saveChats();
+                    this.scrollChatToBottom();
+                },
+
+                scrollChatToBottom() {
+                    setTimeout(() => {
+                        let feed = document.getElementById('main-chat-feed');
+                        if (feed) {
+                            feed.scrollTop = feed.scrollHeight;
+                        }
+                    }, 50);
+                },
+
+                openCreateMatchModal() {
+                    this.matchModal.isEdit = false;
+                    this.matchModal.form = {
+                        id: Date.now(),
+                        stage: 'QUALIFIERS R1',
+                        teamA: this.allSquadNames[0] || 'SOLAR 1',
+                        teamB: this.allSquadNames[1] || 'NOVA 1',
+                        date: 'OCT 29',
+                        time: '19:00 PHT',
+                        status: 'UPCOMING',
+                        scoreA: 0,
+                        scoreB: 0,
+                        battleRooms: this.initBattleRooms()
+                    };
+                    this.matchModal.show = true;
+                },
+
+                editMatch(match) {
+                    this.matchModal.isEdit = true;
+                    this.matchModal.form = JSON.parse(JSON.stringify(match));
+                    this.matchModal.show = true;
+                },
+
+                saveMatch() {
+                    if (!this.matchModal.form.teamA || !this.matchModal.form.teamB) {
+                        this.showModal('Error', 'Please select both Team A and Team B.', 'fa-solid fa-triangle-exclamation');
+                        return;
+                    }
+                    if (this.matchModal.isEdit) {
+                        let idx = this.matches.findIndex(m => m.id === Number(this.matchModal.form.id));
+                        if (idx !== -1) {
+                            this.matches[idx] = JSON.parse(JSON.stringify(this.matchModal.form));
+                        }
+                    } else {
+                        this.matches.unshift(JSON.parse(JSON.stringify(this.matchModal.form)));
+                    }
+                    this.saveMatches();
+                    this.matchModal.show = false;
+                },
+
+                deleteMatch(matchId) {
+                    this.showModal('Confirm Deletion', 'Are you sure you want to delete this scrimmage matchup?', 'fa-solid fa-trash', true, () => {
+                        this.matches = this.matches.filter(m => m.id !== matchId);
+                        this.saveMatches();
+                    });
+                },
+
+                editPlayerSlot(squad, playerIndex) {
+                    this.playerModal.squad = squad;
+                    this.playerModal.playerIndex = playerIndex;
+                    let p = squad.players[playerIndex];
+                    this.playerModal.form = { ign: p.ign, id: p.id, role: p.role };
+                    this.playerModal.show = true;
+                },
+
+                savePlayerSlot() {
+                    let s = this.playerModal.squad;
+                    let p = s.players[this.playerModal.playerIndex];
+                    p.ign = this.playerModal.form.ign;
+                    p.id = this.playerModal.form.id;
+                    p.role = this.playerModal.form.role;
+                    this.saveSquads();
+                    this.playerModal.show = false;
+                },
+
+                exportDatabase() {
+                    let data = {
+                        squads: this.squads,
+                        matches: this.matches,
+                        chats: this.chatMessages,
+                        exportTimestamp: new Date().toISOString()
+                    };
+                    let blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    let url = URL.createObjectURL(blob);
+                    let a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'dx_amethyst_database_export.json';
+                    a.click();
+                },
+
+                openResetModal() {
+                    this.showModal('Factory Reset', 'Are you sure you want to execute a factory reset? All customized rosters and matches will be restored to defaults.', 'fa-solid fa-triangle-exclamation', true, () => {
+                        localStorage.clear();
+                        this.generateDefaultSquads();
+                        this.generateDefaultMatches();
+                        this.chatMessages = {};
+                        this.showModal('Reset Complete', 'System successfully restored to default state.', 'fa-solid fa-circle-check');
+                    });
+                },
+
+                showModal(title, message, icon = 'fa-solid fa-circle-info', isConfirm = false, confirmCallback = null) {
+                    this.modal.title = title;
+                    this.modal.message = message;
+                    this.modal.icon = icon;
+                    this.modal.isConfirm = isConfirm;
+                    this.modal.confirmCallback = confirmCallback;
+                    this.modal.show = true;
+                },
+
+                closeModals() {
+                    this.modal.show = false;
+                    this.matchModal.show = false;
+                    this.playerModal.show = false;
+                    this.battleRoomModal.show = false;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
