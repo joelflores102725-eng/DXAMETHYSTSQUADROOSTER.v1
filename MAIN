@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DX AMETHYST SQUAD ROSTER PRO - Esports Game Client</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        obsidian: '#0a0a0c',
+                        obsidianCard: '#121217',
+                        obsidianBorder: '#272732',
+                        crimson: {
+                            DEFAULT: '#e60023',
+                            hover: '#ff1e38',
+                            dark: '#b3001b',
+                            glow: 'rgba(230, 0, 35, 0.4)'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.js"></script>
+    <style>
+        body {
+            background-color: #0a0a0c;
+            color: #f3f4f6;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .glow-crimson {
+            box-shadow: 0 0 25px rgba(230, 0, 35, 0.35);
+        }
+        .glow-crimson-subtle {
+            box-shadow: 0 0 15px rgba(230, 0, 35, 0.15);
+        }
+        .glass-panel {
+            background: rgba(18, 18, 23, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a0c;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #272732;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #e60023;
+        }
+    </style>
+</head>
+<body x-data="dxAmethystApp()" x-init="initApp()" class="min-h-screen flex flex-col antialiased selection:bg-crimson selection:text-white">
+
+    <!-- Authentication View -->
+    <template x-if="!isAuthenticated">
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-obsidian bg-opacity-95 px-4 overflow-y-auto">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(230,0,35,0.08)_0,transparent_70%)] pointer-events-none"></div>
+            
+            <div class="w-full max-w-md glass-panel p-8 rounded-2xl glow-crimson relative z-10 border border-obsidianBorder my-8">
+                <div class="text-center mb-8">
+                    <div class="inline-block px-3 py-1 mb-3 text-xs font-mono font-bold tracking-widest text-crimson bg-crimson/10 rounded-full border border-crimson/30">
+                        SECURE TIER-1 CLIENT
+                    </div>
+                    <h1 class="text-3xl font-black tracking-wider uppercase text-white font-mono">DX AMETHYST</h1>
+                    <p class="text-xs text-slate-400 mt-1 uppercase tracking-widest font-mono">Squad Roster Pro v5.2</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 mb-6 bg-obsidian p-1 rounded-xl border border-obsidianBorder">
+                    <button @click="authTab = 'login'; clearAuthError()" 
+                        :class="authTab === 'login' ? 'bg-crimson text-white font-semibold glow-crimson-subtle' : 'text-slate-400 hover:text-white'"
+                        class="py-2.5 text-xs uppercase tracking-wider rounded-lg transition-all duration-200">
+                        Login
+                    </button>
+                    <button @click="authTab = 'signup'; clearAuthError()" 
+                        :class="authTab === 'signup' ? 'bg-crimson text-white font-semibold glow-crimson-subtle' : 'text-slate-400 hover:text-white'"
+                        class="py-2.5 text-xs uppercase tracking-wider rounded-lg transition-all duration-200">
+                        Sign Up
+                    </button>
+                </div>
+
+                <template x-if="authError">
+                    <div class="mb-4 p-3 bg-red-950/80 border border-red-600/50 rounded-xl text-xs text-red-200 flex items-center space-x-2">
+                        <i class="fa-solid fa-triangle-exclamation text-crimson text-sm"></i>
+                        <span x-text="authError"></span>
+                    </div>
+                </template>
+
+                <!-- Login Form -->
+                <form x-show="authTab === 'login'" @submit.prevent="handleLogin" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-mono text-slate-400 uppercase mb-1.5">Email Address</label>
+                        <input type="email" x-model="loginForm.email" required 
+                            class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-crimson transition-colors"
+                            placeholder="e.g. operative@domain.com">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono text-slate-400 uppercase mb-1.5">Password</label>
+                        <input type="password" x-model="loginForm.password" required 
+                            class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-crimson transition-colors"
+                            placeholder="••••••••••••">
+                    </div>
+                    <button type="submit" class="w-full py-3.5 bg-crimson hover:bg-crimson-hover text-white text-sm font-bold uppercase tracking-wider rounded-xl transition-all glow-crimson flex items-center justify-center space-x-2 mt-2">
+                        <span>Initialize Session</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                    <div class="mt-4 pt-4 border-t border-obsidianBorder text-center">
+                        <button type="button" @click="fillAdminDemo" class="text-[10px] font-mono text-slate-500 hover:text-crimson transition-colors">
+                            [ System Override Access ]
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Sign Up Form (Automatically Syncs with Profiling) -->
+                <form x-show="authTab === 'signup'" @submit.prevent="handleSignup" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-mono text-slate-400 uppercase mb-1.5">Email Address</label>
+                        <input type="email" x-model="signupForm.email" required 
+                            class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-crimson transition-colors"
+                            placeholder="player@domain.com">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-mono text-slate-400 uppercase mb-1.5">In-Game Name (IGN)</label>
+                            <input type="text" x-model="signupForm.ign" required 
+                                class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-crimson"
+                                placeholder="DX • Phantom">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-mono text-slate-400 uppercase mb-1.5">Player ID</label>
+                            <input type="text" x-model="signupForm.playerId" required 
+                                class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-crimson font-mono"
+                                placeholder="DX-8921">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-mono text-slate-400 uppercase mb-1.5">Organization</label>
+                            <select x-model="signupForm.squadOrg" class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-crimson">
+                                <template x-for="org in organizations" :key="org">
+                                    <option :value="org" x-text="org"></option>
+                                </template>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-mono text-slate-400 uppercase mb-1.5">Team Number</label>
+                            <select x-model.number="signupForm.teamNumber" class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-crimson">
+                                <template x-for="num in [1, 2, 3, 4]" :key="num">
+                                    <option :value="num" x-text="'Team ' + num"></option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono text-slate-400 uppercase mb-1.5">Preferred Role (Strict)</label>
+                        <select x-model="signupForm.role" class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-crimson">
+                            <template x-for="role in rolesList" :key="role">
+                                <option :value="role" x-text="role"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono text-slate-400 uppercase mb-1.5">Password</label>
+                        <input type="password" x-model="signupForm.password" required 
+                            class="w-full bg-obsidian border border-obsidianBorder rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-crimson transition-colors"
+                            placeholder="At least 6 characters">
+                    </div>
+                    <button type="submit" class="w-full py-3.5 bg-crimson hover:bg-crimson-hover text-white text-sm font-bold uppercase tracking-wider rounded-xl transition-all glow-crimson flex items-center justify-center space-x-2 mt-2">
+                        <span>Register & Sync Profiling</span>
+                        <i class="fa-solid fa-user-plus text-xs"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </template>
+
+    <!-- Main Application Interface -->
+    <template x-if="isAuthenticated">
+        <div class="min-h-screen flex flex-col bg-obsidian">
+            
+            <!-- Top Navigation Header -->
+            <header class="h-16 border-b border-obsidianBorder bg-obsidianCard/90 backdrop-blur-md sticky top-0 z-40 px-6 flex items-center justify-between">
+                <div class="flex items-center space-x-6">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-9 h-9 rounded-xl bg-crimson/20 border border-crimson flex items-center justify-center glow-crimson-subtle">
+                            <i class="fa-solid fa-gem text-crimson"></i>
+                        </div>
+                        <div>
+                            <span class="font-black tracking-wider text-white text-lg font-mono">DX AMETHYST</span>
+                            <span class="block text-[10px] text-crimson font-mono tracking-widest uppercase">PRO ESPORTS CLIENT</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Exact Menu Categories -->
+                    <nav class="hidden md:flex items-center space-x-1 ml-6">
+                        <button @click="currentTab = 'dashboard'" 
+                            :class="currentTab === 'dashboard' ? 'bg-crimson/15 text-crimson border-crimson/50' : 'text-slate-400 hover:text-white border-transparent'"
+                            class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all">
+                            <i class="fa-solid fa-chart-pie mr-1.5"></i> Dashboard
+                        </button>
+                        <button @click="currentTab = 'brackets'" 
+                            :class="currentTab === 'brackets' ? 'bg-crimson/15 text-crimson border-crimson/50' : 'text-slate-400 hover:text-white border-transparent'"
+                            class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all">
+                            <i class="fa-solid fa-sitemap mr-1.5"></i> Scrimmage Bracket
+                        </button>
+                        <button @click="currentTab = 'chat'" 
+                            :class="currentTab === 'chat' ? 'bg-crimson/15 text-crimson border-crimson/50' : 'text-slate-400 hover:text-white border-transparent'"
+                            class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all relative">
+                            <i class="fa-solid fa-comments mr-1.5"></i> Lobby Chat Room
+                            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-crimson rounded-full animate-ping"></span>
+                        </button>
+                        <button @click="currentTab = 'profiling'" 
+                            :class="currentTab === 'profiling' ? 'bg-crimson/15 text-crimson border-crimson/50' : 'text-slate-400 hover:text-white border-transparent'"
+                            class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all">
+                            <i class="fa-solid fa-users-rectangle mr-1.5"></i> Profiling
+                        </button>
+                        <button @click="currentTab = 'etc'" 
+                            :class="currentTab === 'etc' ? 'bg-crimson/15 text-crimson border-crimson/50' : 'text-slate-400 hover:text-white border-transparent'"
+                            class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all">
+                            <i class="fa-solid fa-sliders mr-1.5"></i> Etc ...
+                        </button>
+                    </nav>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <div class="hidden lg:flex items-center space-x-3 bg-obsidian px-3.5 py-1.5 rounded-xl border border-obsidianBorder">
+                        <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                        <div class="text-right">
+                            <div class="text-xs font-bold text-white" x-text="currentUser.ign"></div>
+                            <div class="text-[10px] text-crimson font-mono" x-text="currentUser.role + ' • ' + currentUser.squadOrg + ' T' + currentUser.teamNumber"></div>
+                        </div>
+                    </div>
+                    
+                    <template x-if="currentUser.isAdmin">
+                        <span class="px-2.5 py-1 bg-crimson/20 border border-crimson/60 text-crimson rounded-lg text-[10px] font-mono font-bold uppercase tracking-wider">
+                            <i class="fa-solid fa-shield-halved mr-1"></i> Admin
+                        </span>
+                    </template>
+
+                    <button @click="logout" title="Logout" class="w-10 h-10 rounded-xl bg-obsidian border border-obsidianBorder flex items-center justify-center text-slate-400 hover:text-crimson hover:border-crimson/50 transition-all">
+                        <i class="fa-solid fa-power-off text-sm"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Mobile Navigation Bar -->
+            <div class="md:hidden flex items-center justify-around bg-obsidianCard border-b border-obsidianBorder p-2 text-xs">
+                <button @click="currentTab = 'dashboard'" :class="currentTab === 'dashboard' ? 'text-crimson' : 'text-slate-400'" class="flex flex-col items-center py-1">
+                    <i class="fa-solid fa-chart-pie text-sm mb-1"></i> Dashboard
+                </button>
+                <button @click="currentTab = 'brackets'" :class="currentTab === 'brackets' ? 'text-crimson' : 'text-slate-400'" class="flex flex-col items-center py-1">
+                    <i class="fa-solid fa-sitemap text-sm mb-1"></i> Brackets
+                </button>
+                <button @click="currentTab = 'chat'" :class="currentTab === 'chat' ? 'text-crimson' : 'text-slate-400'" class="flex flex-col items-center py-1">
+                    <i class="fa-solid fa-comments text-sm mb-1"></i> Chat
+                </button>
+                <button @click="currentTab = 'profiling'" :class="currentTab === 'profiling' ? 'text-crimson' : 'text-slate-400'" class="flex flex-col items-center py-1">
+                    <i class="fa-solid fa-users text-sm mb-1"></i> Profiling
+                </button>
+                <button @click="currentTab = 'etc'" :class="currentTab === 'etc' ? 'text-crimson' : 'text-slate-400'" class="flex flex-col items-center py-1">
+                    <i class="fa-solid fa-sliders text-sm mb-1"></i> Etc
+                </button>
+            </div>
+
+            <!-- Main Dynamic Content Workspace -->
+            <main class="flex-1 p-6 max-w-7xl mx-auto w-full">
+
+                <!-- DASHBOARD TAB -->
+                <div x-show="currentTab === 'dashboard'" x-transition class="space-y-6">
+                    <div class="glass-panel p-6 rounded-2xl relative overflow-hidden">
+                        <div class="absolute right-0 top-0 translate-x-8 -translate-y-8 w-64 h-64 bg-crimson/10 rounded-full blur-3xl pointer-events-none"></div>
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
+                            <div>
+                                <span class="text-xs font-mono text-crimson uppercase tracking-widest font-bold">DX Amethyst Championship Hub</span>
+                                <h2 class="text-2xl md:text-3xl font-black text-white mt-1">Welcome back, <span class="text-crimson" x-text="currentUser.ign"></span></h2>
+                                <p class="text-sm text-slate-400 mt-1">Tier-1 professional scrimmage matrix initialized. 32 squads synced across 8 major organizations.</p>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <button @click="currentTab = 'brackets'" class="px-5 py-2.5 bg-crimson hover:bg-crimson-hover text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all glow-crimson flex items-center space-x-2">
+                                    <span>View Scrimmage Brackets</span>
+               
